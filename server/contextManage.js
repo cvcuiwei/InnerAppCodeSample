@@ -1,31 +1,32 @@
-const request = require('request');
+const axios = require('axios');
 const parser = require('url-parse');
-exports.contextMngApi =  function(app) {
-    // app.use('/api/user/create',proxy('qyapi.weixin.qq.com/cgi-bin/user/create', {
-    //     https: true,
-    //     proxyReqOptDecorator: function(proxyReq, originalReq) {
-    //         // you can update headers 
-    //         proxyReq.headers['Content-Type'] = 'application/json';
-    //         // you can change the method 
-    //         proxyReq.method = 'POST';
-    //         const {query} = parser(originalReq.originalUrl, true);
-    //         proxyReq.params = query;
-    //         return proxyReq;
-    //       },
-    // }));
-    app.get('/api/user/create', function(req,res) {
-        const {query} = parser(req.originalUrl, true);
-            const clientServerOptions = {
-                uri: 'https://'+'qyapi.weixin.qq.com/cgi-bin/user/create',
-                body: JSON.stringify(query),
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+const getToken = async(corpid, corpsecret) => {
+        const { data: { access_token } } = await axios.get('https://qyapi.weixin.qq.com/cgi-bin/gettoken', {
+            params: {
+                corpid,
+                corpsecret
             }
-            request(clientServerOptions, function (error, response) {
-                res.end(response.body);
-            });
+        });
+        return access_token;
+};
+exports.contextMngApi =  (app) => {
+    app.get('/api/user/create', async (req,res) =>  {
+        const {query} = parser(req.originalUrl, true);
+        const {data} = await axios.post('https://qyapi.weixin.qq.com/cgi-bin/user/create', {
+            params: query
+        });
+        res.end(data);
+    })
+    app.post('/api/user/get', async (req,res) =>  {
+        const { query } = parser(req.originalUrl, true);
+        const access_token = await getToken(query.corpid, query.corpsecret);
+        const {data} = await axios.get('https://qyapi.weixin.qq.com/cgi-bin/user/get', {
+            params: {
+                access_token,
+                userid: query.userid
+            }
+        });
+        res.end(data);
         
     })
 }

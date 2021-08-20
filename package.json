@@ -7,12 +7,13 @@
   "author": "chuyueZhang <chuyueZhang@hotmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "cd ./vue_dev && yarn build"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "express": "^4.17.1",
     "express-http-proxy": "^1.6.2",
-    "request": "^2.88.2",
     "url-parse": "^1.5.3"
   }
 }
